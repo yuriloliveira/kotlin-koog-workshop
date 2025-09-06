@@ -14,6 +14,7 @@ import ai.koog.agents.features.eventHandler.feature.EventHandler
 import ai.koog.prompt.executor.llms.all.simpleOllamaAIExecutor
 import ai.koog.prompt.llm.OllamaModels
 import ai.koog.prompt.message.Message
+import helpers.moviesByGenre
 import helpers.printMessageToUser
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
@@ -33,8 +34,8 @@ fun main() {
                     updatePrompt {
                         system(
                             """You're a helpful assistant that will help understanding what the person wishes to watch.
-                            |Identify the movie genre and provide the genre. Provide the movie genre only.
-                            |""".trimMargin()
+                            |Identify the movie genre within one of: ${moviesByGenre.keys.joinToString("\n", prefix = "\n") { "- $it" } }
+                            |Provide the movie genre only.""".trimMargin()
                         )
                     }
                 }
@@ -77,7 +78,7 @@ fun main() {
             llmModel = llmModel,
             strategy = agentStrategy,
             toolRegistry = ToolRegistry {
-                tool(MovieByGenreTool())
+                tool(MovieByGenreTool)
                 tool(SayToUser)
             },
             installFeatures = {
@@ -101,8 +102,9 @@ fun main() {
             }
         )
 
+        print("What do you want to watch? ")
         agent
-            .run("I want to watch a movie to laugh a lot!")
+            .run(readln())
             .also { printMessageToUser(it.wrap()) }
     }
 }
@@ -111,7 +113,7 @@ private fun String.wrap(): String = chunked(100).joinToString("\n") {
     if (it.last() != ' ') "${it}-" else it
 }
 
-class MovieByGenreTool: SimpleTool<MovieByGenreTool.MovieGenre>() {
+object MovieByGenreTool: SimpleTool<MovieByGenreTool.MovieGenre>() {
     override val argsSerializer: KSerializer<MovieGenre>
         get() = MovieGenre.serializer()
 
@@ -128,9 +130,11 @@ class MovieByGenreTool: SimpleTool<MovieByGenreTool.MovieGenre>() {
             )
         )
 
+
     override suspend fun doExecute(args: MovieGenre): String {
         printMessageToUser("Looks like you want to watch a ${args.genre} movie.")
-        return "The Simpsons"
+        val movies = moviesByGenre[args.genre.lowercase()]
+        return movies?.randomOrNull() ?: "Couldn't find a movie with given genre..."
     }
 
     @Serializable

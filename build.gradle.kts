@@ -18,6 +18,7 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.5.18")
     implementation("ch.qos.logback:logback-classic:1.5.18")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("org.apache.commons:commons-csv:1.14.1")
 }
 
 kotlin {

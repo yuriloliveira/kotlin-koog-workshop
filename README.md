@@ -26,4 +26,3 @@ Exception in thread "main" java.lang.RuntimeException: Ollama API error: model "
 </pre>
 
 when trying to run the application, you're missing the model in ollama. Just run the `ollama pull (model-name)` with the proper model name.
-
