@@ -20,9 +20,9 @@ Once ollama is running, it's necessary to pull the model(s). In this workshop we
 ollama pull llama3.2:3b
 ```
 
-If you're faced with error
+When running the examples, if you're faced with error
 <pre style="color: #d00;">
 Exception in thread "main" java.lang.RuntimeException: Ollama API error: model "(model-name)" not found, try pulling it first
 </pre>
 
-when trying to run the application, you're missing the model in ollama. Just run the `ollama pull (model-name)` with the proper model name.
+you're missing the model in ollama. Just run the `ollama pull (model-name)` with the proper model name.
