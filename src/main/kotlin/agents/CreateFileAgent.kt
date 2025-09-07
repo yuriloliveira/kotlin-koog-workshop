@@ -28,8 +28,8 @@ class CreateFileAgent {
             executor = simpleOllamaAIExecutor(),
             llmModel = OllamaModels.Meta.LLAMA_3_2_3B,
             toolRegistry = toolRegistry,
-            systemPrompt = """You are a file manager that creates files under folder /ai.
-                | You create the folder in case it doesn't exist.""".trimMargin(),
+            systemPrompt = """You are a file manager that creates files. Prepend the filenames with '/ai/'.
+                | You create the folder in case it doesn't exist""".trimMargin(),
             installFeatures = {
                 install(EventHandler) {
                     onToolCall {

@@ -17,33 +17,35 @@ import ai.koog.prompt.executor.llms.all.simpleOllamaAIExecutor
 import ai.koog.prompt.llm.OllamaModels
 import ai.koog.prompt.message.Message
 import helpers.CsvReader
+import helpers.print
 import helpers.printMessageToUser
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import java.io.FileNotFoundException
 
-class MovieRecommendationAgent {
+class MovieRecommendationAgent(verbose: Boolean = true) {
     val agent: AIAgent<String, String> = AIAgent(
         executor = simpleOllamaAIExecutor(),
         llmModel = OllamaModels.Meta.LLAMA_3_2_3B,
         strategy = buildStrategy(),
         toolRegistry = ToolRegistry { tool(MovieByGenreTool) },
         installFeatures = {
-            install(EventHandler) {
-                onBeforeAgentStarted { eventContext: AgentStartContext<*> ->
-                    println("Starting strategy: ${eventContext.strategy.name}")
-                }
-                onAgentFinished { _: AgentFinishedContext ->
-                    println("Agent has finished!")
-                }
-                onAfterLLMCall { ctx ->
-                    println("LLM was called. Prompt messages so far:")
-                    ctx.prompt.messages.forEach {
-                        println("> [${it.metaInfo.timestamp}] [${it.role}] ${it.content}")
+            if (verbose) {
+                install(EventHandler) {
+                    onBeforeAgentStarted { eventContext: AgentStartContext<*> ->
+                        println("Starting strategy: ${eventContext.strategy.name}")
                     }
-                }
-                onToolCall { eventContext: ToolCallContext ->
-                    println("Tool '${eventContext.tool.name}' called with context: ${eventContext.toolArgs}")
+                    onAgentFinished { _: AgentFinishedContext ->
+                        println("Agent has finished!")
+                    }
+                    onAfterLLMCall { ctx ->
+                        println("LLM was called. Prompt messages so far:")
+                        val prompt = ctx.prompt
+                        prompt.print()
+                    }
+                    onToolCall { eventContext: ToolCallContext ->
+                        println("Tool '${eventContext.tool.name}' called with context: ${eventContext.toolArgs}")
+                    }
                 }
             }
         }
@@ -79,7 +81,7 @@ class MovieRecommendationAgent {
             llm.writeSession {
                 updatePrompt {
                     system(
-                        "You're an movie expert that gives concise movie descriptions based on their names."
+                        "You're an movie expert that gives movie descriptions based on their names. The description are composed of a single sentence of up to 20 words."
                     )
                     user("Can you describe the movie '$input' to me?")
 
@@ -127,6 +129,7 @@ class MovieRecommendationAgent {
         data class MovieGenre(val genre: String): ToolArgs
     }
 }
+
 
 private const val GENRE_HEADER = "genre"
 private const val MOVIE_TITLE_HEADER = "movie title"
