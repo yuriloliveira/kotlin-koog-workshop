@@ -39,9 +39,9 @@ fun main() {
             "-i",
             "--rm",
             "-v",
-            "./ai-assistant:/ai",
+            "./ai-output:/ai-output",
             "mcp/filesystem",
-            "/ai"
+            "/ai-output"
         ).start()
 
         val toolRegistry = McpToolRegistryProvider.fromTransport(
@@ -63,7 +63,7 @@ fun main() {
             val nodeUpdatePrompt by node<SafeTool.Result<AIAgentTool.AgentToolResult>, SafeTool.Result<AIAgentTool.AgentToolResult>> {
                 llm.writeSession {
                     updatePrompt {
-                        user("Now create the file /ai/movie-recommendation.txt with content: ${it.asSuccessful().result.result}")
+                        user("Now create the file /ai-output/movie-recommendation.txt with content: ${it.asSuccessful().result.result}")
                     }
                 }
                 it

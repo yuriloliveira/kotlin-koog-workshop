@@ -15,9 +15,9 @@ class CreateFileAgent {
             "-i",
             "--rm",
             "-v",
-            "./ai-assistant:/ai",
+            "./ai-output:/ai-output",
             "mcp/filesystem",
-            "/ai"
+            "/ai-output"
         ).start()
 
         val toolRegistry = McpToolRegistryProvider.fromTransport(
